@@ -1,0 +1,6 @@
+{
+  "name": "Iransiim Store & Admin",
+  "description": "فروشگاه آنلاین سیم‌کارت و بسته‌های اینترنتی همراه با پنل مدیریت یکپارچه",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

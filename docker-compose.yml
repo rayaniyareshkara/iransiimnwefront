@@ -1,0 +1,96 @@
+# Project name is pinned explicitly: Compose would otherwise derive it from the
+# directory name ("iransiim-store-&-admin "), which is not a valid project name.
+name: iransiim-store-admin
+
+services:
+  # Payment API: Express server that talks to the Zibal gateway.
+  # nginx forwards /fapi/* here (the store backend owns /api).
+  api:
+    build:
+      context: .
+      target: api
+      args:
+        NPM_REGISTRY: "${NPM_REGISTRY:-https://registry.npmjs.org}"
+    image: iransiim-store-admin:api
+    container_name: iransiim-api
+    restart: unless-stopped
+    environment:
+      # Required. Read from the host environment or a .env file next to this
+      # compose file; never baked into the image.
+      ZIBAL_MERCHANT: "${ZIBAL_MERCHANT:?set ZIBAL_MERCHANT in .env}"
+      # The gateway callback is built from this, so it must be the origin the
+      # buyer actually reaches — in production the public https domain.
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:?set PUBLIC_BASE_URL in .env}"
+      NUMBER_SEARCH_URL: "${NUMBER_SEARCH_URL:-https://iransiim.ir/api/search}"
+      NODE_ENV: "production"
+      PORT: "8787"
+    volumes:
+      # The idempotency ledger must outlive the container.
+      - transactions:/app/server-data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8787/fapi/payment/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # Production: static build served by nginx.
+  #   docker compose up -d --build web
+  web:
+    build:
+      context: .
+      target: runtime
+      args:
+        NPM_REGISTRY: "${NPM_REGISTRY:-https://registry.npmjs.org}"
+    image: iransiim-store-admin:latest
+    container_name: iransiim-web
+    restart: unless-stopped
+    ports:
+      # Bind to loopback in production and let the CDN/edge reach it through a
+      # host reverse proxy; override WEB_BIND to 0.0.0.0 to expose it directly.
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:80"
+    environment:
+      # Where /api/ is forwarded. See docker/nginx/default.conf.template — this
+      # must never be the domain this server itself answers on.
+      NUMBER_SEARCH_ORIGIN: "${NUMBER_SEARCH_ORIGIN:-https://iransiim.ir}"
+      NUMBER_SEARCH_HOST: "${NUMBER_SEARCH_HOST:-iransiim.ir}"
+      PRODUCT_IMAGE_ORIGIN: "${PRODUCT_IMAGE_ORIGIN:-https://shop.irancell.ir}"
+      PRODUCT_IMAGE_HOST: "${PRODUCT_IMAGE_HOST:-shop.irancell.ir}"
+    depends_on:
+      # Wait for the healthcheck, not just for the container to exist: tsx needs
+      # a few seconds to compile, and until then nginx answers /fapi/*
+      # with 502.
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # Development: Vite dev server with HMR, source mounted from the host.
+  #   docker compose --profile dev up dev
+  dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      target: dev
+      args:
+        NPM_REGISTRY: "${NPM_REGISTRY:-https://registry.npmjs.org}"
+    image: iransiim-store-admin:dev
+    container_name: iransiim-dev
+    ports:
+      - "${DEV_PORT:-3000}:3000"
+    volumes:
+      - .:/app
+      # Keep the image's node_modules; do not let the host directory shadow it.
+      - node_modules:/app/node_modules
+    environment:
+      # Bind-mounted filesystems often do not deliver inotify events, so let
+      # the watcher poll instead.
+      CHOKIDAR_USEPOLLING: "true"
+
+volumes:
+  node_modules:
+  transactions:

@@ -1,0 +1,78 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { InternetPackage } from '../types';
+
+export const initialInternetPackages: InternetPackage[] = [
+  {
+    id: 'pkg-1',
+    title: 'بسته طلایی ۹۰ گیگابایت (هدیه سیم‌کارت)',
+    volume: 90,
+    volumeUnit: 'GB',
+    validityDays: 180,
+    validityLabel: '۶ ماهه',
+    price: 0,
+    description: 'اینترنت هدیه فعال روی سیم‌کارت با اعتبار ۱۸۰ روز',
+    isActive: true,
+    isPopular: true,
+    features: ['اینترنت پرسرعت 4.5G/5G', 'فعال‌سازی آنی پس از تحویل', 'بدون محدودیت ساعتی'],
+    createdAt: '2025-01-10T10:00:00Z',
+  },
+  {
+    id: 'pkg-2',
+    title: 'بسته ۳۰ گیگابایت یک‌ماهه',
+    volume: 30,
+    volumeUnit: 'GB',
+    validityDays: 30,
+    validityLabel: '۳۰ روزه',
+    price: 185000,
+    discountPrice: 165000,
+    description: 'بسته پرطرفدار مصرف عمومی شبکه‌های اجتماعی و وب‌گردی',
+    isActive: true,
+    isPopular: true,
+    features: ['سرعت نامحدود', 'قابل تمدید خودکار'],
+    createdAt: '2025-01-15T12:00:00Z',
+  },
+  {
+    id: 'pkg-3',
+    title: 'بسته ۶۰ گیگابایت سه ماهه',
+    volume: 60,
+    volumeUnit: 'GB',
+    validityDays: 90,
+    validityLabel: '۳ ماهه',
+    price: 340000,
+    discountPrice: 310000,
+    description: 'بسته بلندمدت اقتصادی برای کاربران پرمصرف',
+    isActive: true,
+    features: ['ترافیک بین‌الملل و داخلی', 'پشتیبانی از شبکه 5G'],
+    createdAt: '2025-02-01T08:30:00Z',
+  },
+  {
+    id: 'pkg-4',
+    title: 'بسته ۱۲۰ گیگابایت شش ماهه',
+    volume: 120,
+    volumeUnit: 'GB',
+    validityDays: 180,
+    validityLabel: '۶ ماهه',
+    price: 620000,
+    description: 'بسته نامحدود حجم بالا برای امور کاری و دانلود',
+    isActive: true,
+    features: ['ارزان‌ترین نرخ هر گیگابایت', 'اعتبار شش ماه کامل'],
+    createdAt: '2025-02-10T14:15:00Z',
+  },
+  {
+    id: 'pkg-5',
+    title: 'بسته ۱۵ گیگابایت ۱۵ روزه',
+    volume: 15,
+    volumeUnit: 'GB',
+    validityDays: 15,
+    validityLabel: '۱۵ روزه',
+    price: 98000,
+    description: 'بسته کوتاه‌مدت برای مسافرت یا مصارف فوری',
+    isActive: false,
+    features: ['فعال‌سازی سریع'],
+    createdAt: '2025-02-14T09:00:00Z',
+  },
+];
